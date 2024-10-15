@@ -1,0 +1,94 @@
+/** -----------------------
+** auth section css
+** -------------------------  */
+
+.section-auth {
+    padding: 1rem 3.2rem;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+
+    & .container {
+        /* background-color: #fff; */
+        padding-top: 3.2rem;
+        align-items: center;
+        justify-content: center;
+
+        & img {
+            width: 400px;
+            height: 400px;
+        }
+    }
+
+    & .auth-form {
+        width: 30%;
+        & label {
+            display: block;
+            margin: 2.4rem 0 0.8rem 0;
+            text-transform: capitalize;
+        }
+
+        & input {
+            width: 93%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        & button {
+            padding: 10px 20px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #0056b3;
+            }
+            svg{
+                
+            }
+        }
+
+        & a {
+            display: block;
+            cursor: pointer;
+            color: #0051ff;
+            text-decoration: underline;
+            margin: 10px auto;
+            text-align: center;
+        }
+    }
+}
+
+.section-auth-image {
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 100px;
+}
+
+.section-auth-form {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.section-auth-button {
+    padding: 10px 20px;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 1em;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.section-auth-button:hover {
+    background-color: #0056b3;
+}
