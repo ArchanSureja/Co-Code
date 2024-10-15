@@ -3,7 +3,7 @@ export const initialRoomState = {
     createdBy: { username: '' },
     participants: [],
     messages: [],
-    contents: []
+    contents: ""
 };
 
 export const roomReducer = (state, action) => {

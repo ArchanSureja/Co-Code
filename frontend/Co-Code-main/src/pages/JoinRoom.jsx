@@ -33,7 +33,7 @@ const JoinRoom = ({ image, heading }) => {
             },
             participants:[],
             messages:[],
-            contents:[],
+            contents:"",
 
         }
         const response = await fetch(`http://localhost:1000/api/room/`, {
