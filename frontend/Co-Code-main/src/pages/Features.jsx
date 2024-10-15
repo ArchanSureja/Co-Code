@@ -14,7 +14,6 @@ import Editor from './Editor';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../store/auth';
 import getRoomFromDB from '../services/room-service';
-import CodeRunner from './CodeRunner';
 import axios from 'axios';
 import LanguageSelector from '../components/LanguageSelector';
 
