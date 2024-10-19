@@ -108,7 +108,8 @@ async function deleteRoom(req, res) {
     }
 
     // Check if the user is the creator
-    const { username } = req.user; 
+    const { username } = req.user.newUser; 
+    console.log("DELETE",username)
     if (room.createdBy.username !== username) {
       return res.status(403).json({ error: "Permission denied. Only the creator can delete this room." });
     }

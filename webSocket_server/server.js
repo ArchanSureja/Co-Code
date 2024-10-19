@@ -50,6 +50,7 @@ socket_server.on("connection",(socket)=>{
             console.log("members currently online : " +  (roomId in activeUserMap ? activeUserMap[roomId] : 0 ) )
     })
     socket.on("leave-room",(roomId,username)=>{
+        socket.to(roomId).emit("leave-notifiacation", username);
         if(online_map[roomId])
         {
             online_map[roomId] = online_map[roomId].filter((item)=>item!=username)

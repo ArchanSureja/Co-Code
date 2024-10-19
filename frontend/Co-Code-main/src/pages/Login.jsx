@@ -36,11 +36,11 @@ export default function Login() {
                 navigate('/room');
             } else {
                 console.log(response);
-                toast.error("login failed: " + responseData.message);
-                console.log("login failed: " + responseData.message);
+                toast.error("login failed: please try again");
+               
             }
         } catch (error) {
-            toast.error("Registration failed: " + error.message);
+            toast.error("Registration failed: please try again")
             console.log("Registration failed: " + error);
         }
     }

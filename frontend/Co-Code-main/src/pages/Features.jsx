@@ -27,7 +27,6 @@ const Features = () => {
     const [selectedFeature, setSelectedFeature] = useState('chat');
     const [isSocketConnected, setisSocketConnected] = useState(false);
     const [file, setFile] = useState(null);
-    // const [participantEmail,setparticipantEmail] = useState('')
     useEffect(() => {
         if (!roomContext.roomState?.roomId) {
             toast.error("Lost the connection. Please join the room again.");
@@ -38,15 +37,25 @@ const Features = () => {
         socketRef.current = io("http://localhost:2000")
         console.log(socketRef.current)
         socketRef.current.emit("join-room", roomContext.roomState, authContext.loggedInUser?.username)
-        socketRef.current.on("status-sync", (online_map) => {
-            setonline_map(() => [
-                ...online_map
+        socketRef.current.on("status-sync", (onlinemap) => {
+            setonline_map(()=>[
+                ...onlinemap
             ])
+            if(onlinemap.length > online_map.length)
+            {
+                if(onlinemap[onlinemap.length-1]!==authContext.loggedInUser?.username)
+                    {
+                        toast.success(`${onlinemap[onlinemap.length-1]} joined the room `)
+                    }
+            }
         })
         socketRef.current.on("roomContext-sync", (roomObj) => {
             roomContext.dispatch({ type: 'SET_ROOM', payload: roomObj });  // Set the room context
             console.log("updated room context ", roomContext)
             navigate(`/features`);
+        })
+        socketRef.current.on("leave-notifiacation",(user)=>{
+            toast.error(`${user} left the room`)
         })
         setisSocketConnected(true)
         setonline_map(pre => [...pre, authContext.loggedInUser?.username])
@@ -113,7 +122,32 @@ const Features = () => {
             alert("Error uploading file. Please try again.");
         }
     };
+    const handleDelete = async () => {
+        if (!window.confirm("Are you sure you want to delete this room?")) {
+            return;
+        }
 
+        try {
+            const response = await fetch(`http://localhost:1000/api/room/${roomContext.roomState.roomId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': "Bearer " + localStorage.getItem('token')
+                },
+            });
+
+            if (response.ok) {
+                toast.success("Room deleted successfully!");
+                navigate('/room');
+            } else {
+                console.error("Failed to delete room.");
+                alert("Failed to delete room. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error deleting room:", error);
+            alert("Error deleting room. Please try again.");
+        }
+    }
     const handleSend = async (e) => {
         e.preventDefault();
         let participantEmail = e.target.elements.email.value
@@ -390,13 +424,16 @@ const Features = () => {
                 return (
                     <div className="feature-content">
                         <div className="settings-container">
-                            <h2>Settings & Share Room code</h2>
-                            <hr />
-                            <form className="settings-block" onSubmit={handleSend}>
-                                <label>Participant Email</label>
-                                <input type="email" name="email" id="email" />
-                                <button className='btn' type="submit">send</button>
-                            </form>
+                        {roomContext.roomState.createdBy.username === authContext.loggedInUser?.username ? (
+               <>  <form className="settings-block" onSubmit={handleSend}>
+                    <label>Participant Email</label>
+                    <input type="email" name="email" id="email" />
+                    <button type="submit">send</button>
+                </form>
+                  <button onClick={handleDelete}>Delete Room</button>
+                  </>
+            ) : (
+                <p>Contact room creator to add the other participants.</p> )}
                             <hr />
                             <h4>Creator : <strong>{roomContext.roomState.createdBy.username}</strong></h4>
                             <h3>Participants List</h3>

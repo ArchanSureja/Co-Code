@@ -19,7 +19,6 @@ const Navbar = () => {
                   {
                      isLoggedIn ?
                         <>
-                           <li><NavLink to="/features">Features</NavLink></li>
                            <li><NavLink to="/room">Join/Create Room</NavLink></li>
                            <li><NavLink to="/logout">Logout</NavLink></li>
                         </>
