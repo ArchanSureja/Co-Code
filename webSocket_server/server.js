@@ -120,7 +120,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
     socket_server.to(roomId).emit('code-sync',fileContent);
    return res.status(200).json({
         message: 'File uploaded successfully!',
-        file: req.file
+        file: req.file,
+        fileContent
     })
 })
 app.get('/', (req, res) => {

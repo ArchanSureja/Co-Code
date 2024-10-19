@@ -1,4 +1,4 @@
-import React, { useEffect, useState , useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './FeaturesPage.css';
 import { toast } from 'react-toastify';
 import { LuFiles } from "react-icons/lu";
@@ -14,53 +14,76 @@ import Editor from './Editor';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../store/auth';
 import getRoomFromDB from '../services/room-service';
+import axios from 'axios';
+import LanguageSelector from '../components/LanguageSelector';
+import { RiAdminLine } from "react-icons/ri";
 
 const Features = () => {
     const navigate = useNavigate();
-    const socketRef = useRef(null); 
+    const socketRef = useRef(null);
     const roomContext = useRoom()
     const authContext = useAuth()
-    const [online_map , setonline_map] = useState([]);
+    const [online_map, setonline_map] = useState([]);
     const [selectedFeature, setSelectedFeature] = useState('chat');
-    const [isSocketConnected,setisSocketConnected] = useState(false);
+    const [isSocketConnected, setisSocketConnected] = useState(false);
     const [file, setFile] = useState(null);
     // const [participantEmail,setparticipantEmail] = useState('')
     useEffect(() => {
         if (!roomContext.roomState?.roomId) {
             toast.error("Lost the connection. Please join the room again.");
             console.log("No room context available, redirecting to JoinRoom");
-            navigate('/room'); 
+            navigate('/room');
             return;
-          }
+        }
         socketRef.current = io("http://localhost:2000")
         console.log(socketRef.current)
-        socketRef.current.emit("join-room",roomContext.roomState,authContext.loggedInUser?.username)
-        socketRef.current.on("status-sync",(online_map)=>{
-            setonline_map(()=>[
+        socketRef.current.emit("join-room", roomContext.roomState, authContext.loggedInUser?.username)
+        socketRef.current.on("status-sync", (online_map) => {
+            setonline_map(() => [
                 ...online_map
             ])
         })
-        socketRef.current.on("roomContext-sync",(roomObj)=>{
+        socketRef.current.on("roomContext-sync", (roomObj) => {
             roomContext.dispatch({ type: 'SET_ROOM', payload: roomObj });  // Set the room context
             console.log("updated room context ", roomContext)
             navigate(`/features`);
         })
         setisSocketConnected(true)
-        setonline_map(pre=>[...pre,authContext.loggedInUser?.username])
+        setonline_map(pre => [...pre, authContext.loggedInUser?.username])
         return () => {
             if (socketRef.current) {
-              socketRef.current.emit('leave-room', roomContext.roomState.roomId,authContext.loggedInUser?.username);
-              socketRef.current.disconnect(); 
-              console.log('Left room:',roomContext.roomState)
+                socketRef.current.emit('leave-room', roomContext.roomState.roomId, authContext.loggedInUser?.username);
+                socketRef.current.disconnect();
+                console.log('Left room:', roomContext.roomState)
             }
-          };
-      }, []);
-      const handleFileChange = (e) => {
-        setFile(e.target.files[0]);  
+        };
+    }, []);
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+
+        const allowedExtensions = ['.js', '.py', '.cpp', '.java', '.sh'];
+        const maxSizeInBytes = 5 * 1024 * 1024;
+
+        if (file) {
+            const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+
+            if (!allowedExtensions.includes(fileExtension)) {
+                toast.error('Unsupported file type! Please upload a .js, .py, .cpp, .java, or .sh file.');
+                // e.target.value = '';   
+                return;
+            }
+
+            if (file.size > maxSizeInBytes) {
+                toast.error('File size exceeds the 5MB limit. Please upload a smaller file.');
+                // e.target.value = '';  
+                return;
+            }
+            setFile(e.target.files[0]);
+        }
     };
     const handleSubmit = async (e) => {
-        e.preventDefault();  
-        
+        e.preventDefault();
+
 
         if (!file) {
             alert("Please select a file before submitting.");
@@ -68,7 +91,7 @@ const Features = () => {
         }
 
         const formData = new FormData();
-        formData.append('file', file);  
+        formData.append('file', file);
         formData.append('roomId', roomContext.roomState.roomId);
 
         try {
@@ -80,6 +103,7 @@ const Features = () => {
             if (response.ok) {
                 const result = await response.json();  // Parse the JSON response from the server
                 console.log("File uploaded successfully:", result);
+                codeRef.current = result.fileContent;
             } else {
                 console.error("File upload failed.");
                 alert("File upload failed. Please try again.");
@@ -89,18 +113,18 @@ const Features = () => {
             alert("Error uploading file. Please try again.");
         }
     };
-  
-    const handleSend = async (e) =>{
+
+    const handleSend = async (e) => {
         e.preventDefault();
         let participantEmail = e.target.elements.email.value
-        console.log("got the email",participantEmail)
-        if(!participantEmail){
+        console.log("got the email", participantEmail)
+        if (!participantEmail) {
             toast.error("Please enter the participant's email.")
             return
         }
         // check user is in db or not 
-        try{
-    
+        try {
+
             const response = await fetch(`http://localhost:1000/api/user/${participantEmail}`, {
                 method: 'GET',
                 headers: {
@@ -109,19 +133,19 @@ const Features = () => {
                 },
             });
             var data = await response.json();
-            if(response.ok){
-                console.log("validation of the email",data)
+            if (response.ok) {
+                console.log("validation of the email", data)
             }
-            else{
-                console.log("error",data)
+            else {
+                console.log("error", data)
                 toast.error("user not found with this email!!")
                 e.target.elements.email.value = ""
-                
-                return 
+
+                return
             }
-        }catch(e){
-             console.log("something went wrong")
-             return 
+        } catch (e) {
+            console.log("something went wrong")
+            return
         }
 
         // getting room object 
@@ -130,36 +154,33 @@ const Features = () => {
 
         //adding participant to the room 
         let isValid = true
-        for(let i=0;i<room.participants.length;i++) {
-            if(room.participants[i].username == data.user.username)
-                {
-                    isValid = false
-                    toast.error(`User ${data.user.username} is already a participant in the room.`);
-                    e.target.elements.email.value = ""
-                 
-                    break;
-                }
-                else 
-                {
-                    continue;
-                }
-        }
-        if (data.user.username === room.createdBy.username)
-            {
+        for (let i = 0; i < room.participants.length; i++) {
+            if (room.participants[i].username == data.user.username) {
                 isValid = false
                 toast.error(`User ${data.user.username} is already a participant in the room.`);
-                e.target.elements.email.value = '';
-                
+                e.target.elements.email.value = ""
+
+                break;
             }
-        
-        if(!isValid) return 
-        room.participants.push({ username: data.user.username})
+            else {
+                continue;
+            }
+        }
+        if (data.user.username === room.createdBy.username) {
+            isValid = false
+            toast.error(`User ${data.user.username} is already a participant in the room.`);
+            e.target.elements.email.value = '';
+
+        }
+
+        if (!isValid) return
+        room.participants.push({ username: data.user.username })
         console.log("added participant in the room ", room)
 
 
         // put reques for updating the room 
-        try{
-    
+        try {
+
             const response = await fetch(`http://localhost:1000/api/room/${roomId}`, {
                 method: 'PUT',
                 headers: {
@@ -169,11 +190,11 @@ const Features = () => {
                 body: JSON.stringify(room),
             });
             var data = await response.json();
-            if(response.ok){
-                console.log("updated room",data)
+            if (response.ok) {
+                console.log("updated room", data)
                 // now send the code in email 
-                try{
-    
+                try {
+
                     const response = await fetch(`http://localhost:7000/send-room-code`, {
                         method: 'POST',
                         headers: {
@@ -182,12 +203,12 @@ const Features = () => {
                         body: JSON.stringify({
                             roomCode: roomId,
                             email: participantEmail,
-                            creator : room.createdBy.username
+                            creator: room.createdBy.username
                         }),
                     });
                     var data = await response.json();
-                    if(response.ok){
-                       
+                    if (response.ok) {
+
                         toast.success("participant added successfully and code shared via email")
                         e.target.elements.email.value = ""
                         // adding the updated room to the temp_db in websocket server 
@@ -195,88 +216,151 @@ const Features = () => {
                         socketRef.current.emit("room-sync", roomData); // send updated room to all users in the room
                         return
                     }
-                    else{
-                        console.log("error",data)
+                    else {
+                        console.log("error", data)
                         return
                     }
-                }catch(e){
-                     console.log("something went wrong")
-                     return 
+                } catch (e) {
+                    console.log("something went wrong")
+                    return
                 }
             }
 
-            else{
-                console.log("error",data)
+            else {
+                console.log("error", data)
             }
-        }catch(e){
-             console.log("something went wrong")
-             return 
+        } catch (e) {
+            console.log("something went wrong")
+            return
         }
 
-     
+
     }
+
+    const codeRef = useRef(null);
+    const [output, setOutput] = useState("");
+    const [codeInput, setCodeInput] = useState("");
+    const [language, setLanguage] = useState({ "language": "javascript", "version": "18.15.0" });
+
+    const handleLanguageChange = (selectedLanguage) => {
+        setLanguage(selectedLanguage);
+        console.log(language);
+    };
+
+    const runCode = async () => {
+
+        console.log('Running code');
+        console.log('code : ', codeRef.current);
+
+        if (!codeRef.current) {
+            toast.error("No code to execute.");
+            return;
+        }
+
+        try {
+            const response = await axios.post('https://emkc.org/api/v2/piston/execute', {
+                language: language.language,
+                version: language.version,
+                files: [
+                    {
+                        content: codeRef.current,
+                        // content: roomContext.roomState.contents,
+                    }
+                ],
+                stdin: codeInput,
+            });
+
+            const result = response.data;
+            console.log('Execution Result:', result);
+
+            if (result.run.stderr) {
+                toast.error(`Error`);
+                setOutput(result.run.stderr); // Set the error in the output
+            } else {
+                toast.success('Code executed successfully');
+                setOutput(result.run.stdout); // Set the output in state
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to execute code');
+            setOutput('Failed to execute code'); // Display error in output
+        }
+    };
+
+
     const renderFeatureContent = () => {
         switch (selectedFeature) {
             case 'editor':
                 return (
-                <div className="feature-content">
-                <form className="file-folder-info" onSubmit={handleSubmit}>
-                <h2>Files</h2>
-                <input
-                    type="file"
-                    id="file"
-                    name="file"
-                    required
-                    onChange={handleFileChange} />
-                    <button type='submit'>open</button>
-                <hr />
-                </form>
-                    <div className="editor">
-                         { isSocketConnected  ? <Editor socket={socketRef.current} /> : <p> Connecting to the editor.....</p>}
+                    <div className="feature-content">
+                        <form className="file-folder-info" onSubmit={handleSubmit}>
+                            <h2>Files</h2>
+                            <input
+                                type="file"
+                                id="file"
+                                name="file"
+                                required
+                                accept=".js,.py,.cpp,.java,.sh"
+                                onChange={handleFileChange} />
+                            <button className='btn' type='submit'>open</button>
+                            <hr />
+                        </form>
+                        <div className="editor">
+                            {isSocketConnected ? <Editor socket={socketRef.current} setCodeRef={codeRef} /> : <p> Connecting to the editor.....</p>}
                         </div>
                     </div>
                 );
             case 'runner':
                 return (
+
                     <div className="feature-content">
                         <div className="runner-container">
                             <h2>Runner</h2>
                             <div className="runner-block">
-                                <h3>Select Language</h3>
-                                <select>
-                                    <option>JavaScript</option>
-                                    <option>Python</option>
-                                    <option>Java</option>
-                                
-                                </select>
+                                <LanguageSelector onLanguageSelect={handleLanguageChange} />
+
                                 <h3>Input</h3>
-                                <textarea placeholder="Provide input..."></textarea>
+                                <textarea
+                                    placeholder="Provide input..."
+                                    value={codeInput}
+                                    onChange={(e) => setCodeInput(e.target.value)}  // Capture user input
+                                ></textarea>
+
                                 <h3>Output</h3>
-                                <textarea placeholder="Output will be displayed here..."></textarea>
+                                <textarea
+                                    value={output}
+                                    placeholder="Output will be displayed here..."
+                                    readOnly
+                                ></textarea>
+
+                                <button className='btn' onClick={runCode}>Run Code</button>
                             </div>
                         </div>
-                    <div className="editor">
-                      { isSocketConnected ?
-                         <Editor socket={socketRef.current}/>
-                         : <p> Connecting to the editor.....</p>}                     
-                    </div>
+
+                        <div className="editor">
+                            {isSocketConnected ?
+                                <Editor socket={socketRef.current} setCodeRef={codeRef} /> :
+                                <p>Connecting to the editor.....</p>
+                            }
+                        </div>
                     </div>
                 );
-            case 'chat': 
-            return (
-                <div className="feature-content">
-                    <div className="chat-container">
 
-                       { isSocketConnected? <Chat socket={socketRef.current} /> : <p>Connecting to chat...</p>}
+            case 'chat':
+                return (
+                    <div className="feature-content">
+                        <div className="chat-container">
+
+                            {isSocketConnected ? <Chat socket={socketRef.current} /> : <p>Connecting to chat...</p>}
+                        </div>
+
+                        <div className="editor">
+
+                            {isSocketConnected ? <Editor socket={socketRef.current} setCodeRef={codeRef}/> : <p> Connecting to the editor.....</p>}
+
+                        </div>
                     </div>
-
-                    <div className="editor">
-
-                    { isSocketConnected ? <Editor socket={socketRef.current}/> : <p> Connecting to the editor.....</p>}
-
-                    </div>
-                </div>
-            );   
+                );
             case 'collaborators':
                 return (
                     <div className="feature-content">
@@ -285,19 +369,19 @@ const Features = () => {
                             <h2>Collaborators</h2>
                             <hr />
                             <div className="collaborators-block">
-                            {online_map.map((user, index) => (
-                        <div key={index}>
-                            <strong>{user}</strong> : online
-                        </div>
-                    ))}
-                                  
-                                
+                                {online_map.map((user, index) => (
+                                    <div key={index}>
+                                        <strong>{user}</strong> : online
+                                    </div>
+                                ))}
+
+
                             </div>
                         </div>
 
                         <div className="editor">
 
-                        { isSocketConnected ? <Editor socket={socketRef.current}/> : <p> Connecting to the server.............</p>}
+                            {isSocketConnected ? <Editor socket={socketRef.current} setCodeRef={codeRef}/> : <p> Connecting to the server.............</p>}
 
                         </div>
                     </div>
@@ -309,13 +393,21 @@ const Features = () => {
                             <h2>Settings & Share Room code</h2>
                             <hr />
                             <form className="settings-block" onSubmit={handleSend}>
-                               <label>Participant Email</label>
-                               <input type="email" name="email" id="email" />
-                               <button type="submit">send</button>
+                                <label>Participant Email</label>
+                                <input type="email" name="email" id="email" />
+                                <button className='btn' type="submit">send</button>
                             </form>
+                            <hr />
+                            <h4>Creator : <strong>{roomContext.roomState.createdBy.username}</strong></h4>
+                            <h3>Participants List</h3>
+                            <ul>
+                                {roomContext.roomState.participants.map((participant, index) => (
+                                    <li key={index}>{participant.username}</li>
+                                ))}
+                            </ul>
                         </div>
                         <div className="editor">
-                        { isSocketConnected ? <Editor socket={socketRef.current} /> : <p> Connecting to the editor.....</p>}
+                            {isSocketConnected ? <Editor socket={socketRef.current} setCodeRef={codeRef} /> : <p> Connecting to the editor.....</p>}
 
                         </div>
                     </div>
@@ -332,7 +424,7 @@ const Features = () => {
                     <li onClick={() => setSelectedFeature('runner')}><VscRunAll /></li>
                     <li onClick={() => setSelectedFeature('chat')}><HiChatBubbleLeftRight /></li>
                     <li onClick={() => setSelectedFeature('collaborators')}><FcCollaboration /></li>
-                    <li onClick={() => setSelectedFeature('settings')}><IoSettingsOutline /></li>
+                    <li onClick={() => setSelectedFeature('settings')}><RiAdminLine /></li>
                 </ul>
             </div>
             <div className="content">

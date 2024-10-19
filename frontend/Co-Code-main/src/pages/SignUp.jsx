@@ -6,12 +6,13 @@ import registerImg from '../assets/register.png';
 import { useAuth } from '../store/auth';
 import { toast } from 'react-toastify';
 export default function SignUp() {
-    const  authContext = useAuth();
+    const authContext = useAuth();
     const navigate = useNavigate();
     const [inputUser, setinputUser] = useState({
         username: "",
         email: "",
-        password: ""
+        password: "",
+        cpassword: ""
     });
     const handleInput = (e) => {
         console.log(e);
@@ -21,6 +22,10 @@ export default function SignUp() {
     }
     const handleSignUp = async (e) => {
         e.preventDefault();
+        if (inputUser.password !== inputUser.cpassword) {
+            toast.error("Password do not match.");
+            return;
+        }
         try {
             const response = await fetch(`http://localhost:1000/api/user/signup`, {
                 method: 'POST',
@@ -30,10 +35,10 @@ export default function SignUp() {
                 body: JSON.stringify(inputUser),
             });
             const responseData = await response.json();
-            console.log(responseData); 
+            console.log(responseData);
             if (response.ok) {
                 toast.success('Registration Successful!');
-                authContext.loginUser(inputUser,responseData.token)
+                authContext.loginUser(inputUser, responseData.token)
                 setinputUser({ username: "", email: "", password: "" });
                 navigate('/room');
             } else {
@@ -52,7 +57,7 @@ export default function SignUp() {
                 <div className="section-auth-image">
                     <img src={registerImg} alt="Sign Up" width={400} height={400} />
                 </div>
-                <div className="auth-form">
+                <form className="auth-form" onSubmit={handleSignUp} >
                     <h1 className="main-heading mb-3">Sign Up</h1>
                     <input
                         type="text"
@@ -84,8 +89,18 @@ export default function SignUp() {
                         value={inputUser.password}
                         onChange={handleInput}
                     />
-                    <button onClick={handleSignUp} className="section-auth-button">Sign Up</button>
-                </div>
+                    <input
+                        type="password"
+                        name='cpassword'
+                        placeholder="Confirm Password"
+                        id='cpassword'
+                        required
+                        autoComplete='off'
+                        value={inputUser.cpassword}
+                        onChange={handleInput}
+                    />
+                    <button type='submit' className="section-auth-button">Sign Up</button>
+                </form>
             </div>
         </div>
     );

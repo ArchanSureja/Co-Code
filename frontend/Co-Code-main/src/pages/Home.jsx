@@ -24,15 +24,15 @@ const Home = () => {
 
             <section className="features">
                 <Card
-                    image={editor}
-                    heading="🖥️ RealTime Editor"
-                    paragraph="Create, open, edit, save, delete, and organize files and folders."
-                    isOdd={1}
-                />
-                <Card
                     image={chat}
                     heading="💬 Group Chat"
                     paragraph="Group chatting allows users to communicate in real-time while working on code."
+                    isOdd={1}
+                />
+                <Card
+                    image={editor}
+                    heading="🖥️ RealTime Editor"
+                    paragraph="Open and Edit files "
                 />
                 <Card
                     image={execution}

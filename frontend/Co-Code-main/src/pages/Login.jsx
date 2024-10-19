@@ -53,7 +53,7 @@ export default function Login() {
                 <div className="section-auth-image">
                     <img src={loginImg} alt="Login" width={400} height={400} />
                 </div>
-                <div className="auth-form">
+                <form className="auth-form" onSubmit={handleLogin}>
                     <h1 className="main-heading mb-3">Login</h1>
                     <input
                         type="email"
@@ -85,8 +85,8 @@ export default function Login() {
                         value={inputUser.password}
                         onChange={handleInput}
                     />
-                    <button onClick={handleLogin} className="section-auth-button">Login</button>
-                </div>
+                    <button type='submit' className="section-auth-button">Login</button>
+                </form>
             </div>
         </div>
     );

@@ -21,7 +21,7 @@ async function createRoom(req, res) {
       createdBy,
       participants: participants || [],
       messages: [],
-      contents: contents || [],
+      contents: "",
     });
 
     await newRoom.save();
