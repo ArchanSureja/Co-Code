@@ -16,6 +16,7 @@ import { useAuth } from '../store/auth';
 import getRoomFromDB from '../services/room-service';
 import axios from 'axios';
 import LanguageSelector from '../components/LanguageSelector';
+import { RiAdminLine } from "react-icons/ri";
 
 const Features = () => {
     const navigate = useNavigate();
@@ -58,11 +59,31 @@ const Features = () => {
         };
     }, []);
     const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+        const file = e.target.files[0];
+
+        const allowedExtensions = ['.js', '.py', '.cpp', '.java', '.sh'];
+        const maxSizeInBytes = 5 * 1024 * 1024;
+
+        if (file) {
+            const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+
+            if (!allowedExtensions.includes(fileExtension)) {
+                toast.error('Unsupported file type! Please upload a .js, .py, .cpp, .java, or .sh file.');
+                // e.target.value = '';   
+                return;
+            }
+
+            if (file.size > maxSizeInBytes) {
+                toast.error('File size exceeds the 5MB limit. Please upload a smaller file.');
+                // e.target.value = '';  
+                return;
+            }
+            setFile(e.target.files[0]);
+        }
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-       
+
 
         if (!file) {
             alert("Please select a file before submitting.");
@@ -243,6 +264,7 @@ const Features = () => {
                 files: [
                     {
                         content: codeRef.current,
+                        // content: roomContext.roomState.contents,
                     }
                 ],
                 stdin: codeInput,
@@ -278,12 +300,13 @@ const Features = () => {
                                 id="file"
                                 name="file"
                                 required
+                                accept=".js,.py,.cpp,.java,.sh"
                                 onChange={handleFileChange} />
-                            <button type='submit'>open</button>
+                            <button className='btn' type='submit'>open</button>
                             <hr />
                         </form>
                         <div className="editor">
-                            {isSocketConnected ? <Editor socket={socketRef.current} /> : <p> Connecting to the editor.....</p>}
+                            {isSocketConnected ? <Editor socket={socketRef.current} setCodeRef={codeRef} /> : <p> Connecting to the editor.....</p>}
                         </div>
                     </div>
                 );
@@ -310,7 +333,7 @@ const Features = () => {
                                     readOnly
                                 ></textarea>
 
-                                <button onClick={runCode}>Run Code</button>
+                                <button className='btn' onClick={runCode}>Run Code</button>
                             </div>
                         </div>
 
@@ -333,7 +356,7 @@ const Features = () => {
 
                         <div className="editor">
 
-                            {isSocketConnected ? <Editor socket={socketRef.current} /> : <p> Connecting to the editor.....</p>}
+                            {isSocketConnected ? <Editor socket={socketRef.current} setCodeRef={codeRef}/> : <p> Connecting to the editor.....</p>}
 
                         </div>
                     </div>
@@ -358,7 +381,7 @@ const Features = () => {
 
                         <div className="editor">
 
-                            {isSocketConnected ? <Editor socket={socketRef.current} /> : <p> Connecting to the server.............</p>}
+                            {isSocketConnected ? <Editor socket={socketRef.current} setCodeRef={codeRef}/> : <p> Connecting to the server.............</p>}
 
                         </div>
                     </div>
@@ -372,11 +395,19 @@ const Features = () => {
                             <form className="settings-block" onSubmit={handleSend}>
                                 <label>Participant Email</label>
                                 <input type="email" name="email" id="email" />
-                                <button type="submit">send</button>
+                                <button className='btn' type="submit">send</button>
                             </form>
+                            <hr />
+                            <h4>Creator : <strong>{roomContext.roomState.createdBy.username}</strong></h4>
+                            <h3>Participants List</h3>
+                            <ul>
+                                {roomContext.roomState.participants.map((participant, index) => (
+                                    <li key={index}>{participant.username}</li>
+                                ))}
+                            </ul>
                         </div>
                         <div className="editor">
-                            {isSocketConnected ? <Editor socket={socketRef.current} /> : <p> Connecting to the editor.....</p>}
+                            {isSocketConnected ? <Editor socket={socketRef.current} setCodeRef={codeRef} /> : <p> Connecting to the editor.....</p>}
 
                         </div>
                     </div>
@@ -393,7 +424,7 @@ const Features = () => {
                     <li onClick={() => setSelectedFeature('runner')}><VscRunAll /></li>
                     <li onClick={() => setSelectedFeature('chat')}><HiChatBubbleLeftRight /></li>
                     <li onClick={() => setSelectedFeature('collaborators')}><FcCollaboration /></li>
-                    <li onClick={() => setSelectedFeature('settings')}><IoSettingsOutline /></li>
+                    <li onClick={() => setSelectedFeature('settings')}><RiAdminLine /></li>
                 </ul>
             </div>
             <div className="content">

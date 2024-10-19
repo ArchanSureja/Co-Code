@@ -19,6 +19,7 @@ const Editor = ({ socket, setCodeRef }) => {
     useEffect(() => {
         socket.on("code-sync", (code) => {
             setCode(code)
+            setCodeRef.current = code;
         })
     }, [])
 

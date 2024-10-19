@@ -3,6 +3,7 @@ import './FeaturesPage.css';
 import { LuSendHorizonal } from "react-icons/lu";
 import { useAuth } from '../store/auth';
 import { useRoom } from '../context/roomContext/roomContext';
+import { toast } from 'react-toastify';
 const Chat = ({socket}) => {
     console.log(socket)
     const authContext = useAuth()
@@ -10,6 +11,10 @@ const Chat = ({socket}) => {
     const [text, setText] = useState("");
     const [messages , setMessages] = useState([])
     const sendMessage = () => {
+        if(!text){
+            toast.error("Message can not be empty");
+            return;
+        }
        roomContext.roomState.messages.push({
          text : text,
          username : authContext.loggedInUser.username
@@ -41,7 +46,9 @@ const Chat = ({socket}) => {
                 <hr />
                 <div className="chat-block">
                     {roomContext.roomState.messages.map((msg, index) => (
-                        <div key={index}>
+                        <div key={index} style={{
+                            textAlign: msg.username === authContext.loggedInUser.username ? "left" : "right"
+                          }} className='textMsg'>
                             <strong>{msg.username}</strong>: {msg.text}
                         </div>
                     ))}

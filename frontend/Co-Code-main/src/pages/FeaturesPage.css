@@ -91,6 +91,7 @@
 .collaborators-block,
 .settings-block {
     margin-top: 20px;
+    /* overflow-y: auto; */
 }
 
 textarea {
@@ -110,7 +111,7 @@ textarea:focus {
     box-shadow: 0 0 4px #007bff;
 }
 
-button {
+.btn {
     padding: 10px 20px;
     background-color: #007bff;
     color: white;
@@ -121,7 +122,7 @@ button {
     width: 100%;
 }
 
-button:hover {
+.btn:hover {
     background-color: #0056b3;
 }
 
@@ -158,6 +159,14 @@ select {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
+}
+
+.textMsg {
+    border-radius: 5px;
+    outline: none;
+    padding: 0.5rem;
+    background-color: aliceblue;
+    margin: 0.5rem;
 }
 
 .message-input {
