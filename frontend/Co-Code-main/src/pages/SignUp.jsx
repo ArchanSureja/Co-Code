@@ -27,7 +27,7 @@ export default function SignUp() {
             return;
         }
         try {
-            const response = await fetch(`http://localhost:1000/api/user/signup`, {
+            const response = await fetch(`http://192.168.74.228:1000/api/user/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

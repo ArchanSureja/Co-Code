@@ -20,13 +20,13 @@ const transporter = nodemailer.createTransport({
     },
   });
   
-  // for at_project 
+ 
 
 
   app.post('/send-room-code', (req, res) => {
     const { email,roomCode,creator} = req.body;
     const mailOptions = {
-      from: 'flutter.quiz.app.no.reply@gmail.com',
+      from: EMAIL,
       to: email,
       subject: `Your Access Code for the Room by creator: ${creator}`,
       html: `

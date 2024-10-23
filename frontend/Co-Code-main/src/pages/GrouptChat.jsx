@@ -10,12 +10,10 @@ const GroupChat = ({ roomId, username }) => {
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
-        socket.emit('join-room', { roomId, username });
-
         socket.on('receive-message', (data) => {
             setMessages((prevMessages) => [...prevMessages, data]);
         });
-
+        socket.emit('join-room', { roomId, username });
         socket.on('user-joined', (data) => {
             setMessages((prevMessages) => [...prevMessages, { username: 'System', message: `${data.username} joined the room` }]);
         });

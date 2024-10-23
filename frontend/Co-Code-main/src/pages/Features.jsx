@@ -34,7 +34,8 @@ const Features = () => {
             navigate('/room');
             return;
         }
-        socketRef.current = io("http://localhost:2000")
+        // socketRef.current = io("http://localhost:2000")
+         socketRef.current = io("http://192.168.74.228:2000")
         console.log(socketRef.current)
         socketRef.current.emit("join-room", roomContext.roomState, authContext.loggedInUser?.username)
         socketRef.current.on("status-sync", (onlinemap) => {
@@ -53,6 +54,10 @@ const Features = () => {
             roomContext.dispatch({ type: 'SET_ROOM', payload: roomObj });  // Set the room context
             console.log("updated room context ", roomContext)
             navigate(`/features`);
+        })
+        socketRef.current.on("deleted-room",()=>{
+            toast.error("Room is destroyed by the creator")
+            navigate(`/room`);
         })
         socketRef.current.on("leave-notifiacation",(user)=>{
             toast.error(`${user} left the room`)
@@ -104,7 +109,7 @@ const Features = () => {
         formData.append('roomId', roomContext.roomState.roomId);
 
         try {
-            const response = await fetch('http://localhost:2000/upload', {
+            const response = await fetch('http://192.168.74.228:2000/upload', {
                 method: 'POST',
                 body: formData
             });
@@ -126,9 +131,9 @@ const Features = () => {
         if (!window.confirm("Are you sure you want to delete this room?")) {
             return;
         }
-
+        socketRef.current.emit("delete-room",roomContext.roomState.roomId)
         try {
-            const response = await fetch(`http://localhost:1000/api/room/${roomContext.roomState.roomId}`, {
+            const response = await fetch(`http://192.168.74.228:1000/api/room/${roomContext.roomState.roomId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -159,7 +164,7 @@ const Features = () => {
         // check user is in db or not 
         try {
 
-            const response = await fetch(`http://localhost:1000/api/user/${participantEmail}`, {
+            const response = await fetch(`http://192.168.74.228:1000/api/user/${participantEmail}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -215,7 +220,7 @@ const Features = () => {
         // put reques for updating the room 
         try {
 
-            const response = await fetch(`http://localhost:1000/api/room/${roomId}`, {
+            const response = await fetch(`http://192.168.74.228:1000/api/room/${roomId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -229,7 +234,7 @@ const Features = () => {
                 // now send the code in email 
                 try {
 
-                    const response = await fetch(`http://localhost:7000/send-room-code`, {
+                    const response = await fetch(`http://192.168.74.228:7000/send-room-code`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

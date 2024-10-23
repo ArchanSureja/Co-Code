@@ -14,8 +14,6 @@ const socket_server = new Server(server,{
         origin: "*",
     }
 })
-
-
 // file upload related code
 // const storage = multer.diskStorage({
 //     destination: function (req, file, cb) {
@@ -85,6 +83,9 @@ socket_server.on("connection",(socket)=>{
         console.log("user joined in room : " + room.roomId + " members currently online : " + activeUserMap[room.roomId],"username :",username)
         socket_server.emit("status-sync",online_map[room.roomId])
 
+    })
+    socket.on("delete-room",(roomId)=>{
+        socket.to(roomId).emit("deleted-room");
     })
     // code for online status of the users 
     socket.on("status-change",(online_map)=>{

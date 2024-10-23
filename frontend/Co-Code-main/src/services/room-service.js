@@ -3,7 +3,7 @@ async function getRoomFromDB(roomId)
 {
     try{
     
-    const response = await fetch(`http://localhost:1000/api/room/${roomId}`, {
+    const response = await fetch(`http://192.168.74.228:1000/api/room/${roomId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
