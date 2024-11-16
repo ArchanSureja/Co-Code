@@ -14,44 +14,32 @@ const Chat = ({socket}) => {
         console.log("Registering receive-message event listener");
         socket.on("receive-message",(obj)=>{
             console.log(obj)
-            // roomContext.roomState.messages.push(obj.newmsg);
-            // messages.push(obj.newmsg)
-            // setMessages(prevMessages => [
-            //     ...prevMessages,  
-            //     obj.newmsg    
-            // ]); 
-             // Update local state and context without direct mutation
-      setMessages((prevMessages) => [...prevMessages, {
-        text : obj.newmsg.text,
-        username : obj.newmsg.username
-      }]);
+      	    setMessages((prevMessages) => [...prevMessages, {
+            text : obj.newmsg.text,
+            username : obj.newmsg.username
+        }]);
        // Update room context state as well
        roomContext.dispatch({
         type: 'ADD_MESSAGE',
         payload:obj.newmsg,
-    });
-        })
-      return   ( ) => {
+        });
+      })
+      return() => {
         console.log("event listner is removed")
         socket.off("receive-message")
       }
     },[socket])
-    const sendMessage = () => {
+
+     // handle sent message 
+     const sendMessage = () => {
         if(!text){
             toast.error("Message can not be empty");
             return;
         }
-    //    roomContext.roomState.messages.push({
-    //      text : text,
-    //      username : authContext.loggedInUser.username
-    //    });
-      // Update local state and context without direct mutation
       setMessages((prevMessages) => [...prevMessages, {
         text : text,
         username : authContext.loggedInUser.username
       }]);
-
-      // Update room context state as well
       roomContext.dispatch({
           type: 'ADD_MESSAGE',
           payload: {
@@ -59,7 +47,13 @@ const Chat = ({socket}) => {
             username : authContext.loggedInUser.username
           },
       });
-       socket.emit("send-message",{ newmsg : { text : text , username : authContext.loggedInUser.username},roomId: roomContext.roomState.roomId });
+       socket.emit("send-message",
+	{ newmsg : 
+		{ text : text , 
+		  username : authContext.loggedInUser.username
+		},
+		roomId: roomContext.roomState.roomId 
+	});
        setText('')
     };
   

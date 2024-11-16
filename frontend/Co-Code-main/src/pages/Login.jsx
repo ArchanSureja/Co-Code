@@ -20,7 +20,7 @@ export default function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://192.168.74.228:1000/api/user/login`, {
+            const response = await fetch(`http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:1000/api/user/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

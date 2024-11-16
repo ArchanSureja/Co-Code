@@ -9,7 +9,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { useRoom } from '../context/roomContext/roomContext';
 
 import io from 'socket.io-client';
-import Chat from './Chat';
+import Chat from './chat';
 import Editor from './Editor';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../store/auth';
@@ -35,7 +35,7 @@ const Features = () => {
             return;
         }
         // socketRef.current = io("http://localhost:2000")
-         socketRef.current = io("http://192.168.74.228:2000")
+         socketRef.current = io("http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:2000")
         console.log(socketRef.current)
         socketRef.current.emit("join-room", roomContext.roomState, authContext.loggedInUser?.username)
         socketRef.current.on("status-sync", (onlinemap) => {
@@ -64,13 +64,17 @@ const Features = () => {
         })
         setisSocketConnected(true)
         setonline_map(pre => [...pre, authContext.loggedInUser?.username])
+
         return () => {
             if (socketRef.current) {
-                socketRef.current.emit('leave-room', roomContext.roomState.roomId, authContext.loggedInUser?.username);
-                socketRef.current.disconnect();
-                console.log('Left room:', roomContext.roomState)
+                socketRef.current.emit('leave-room', roomContext.roomState.roomId, authContext.loggedInUser?.username)
+            
+                    socketRef.current.disconnect();
+                    console.log('Left room:', roomContext.roomState);
+                
+                };
             }
-        };
+        
     }, []);
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -109,7 +113,7 @@ const Features = () => {
         formData.append('roomId', roomContext.roomState.roomId);
 
         try {
-            const response = await fetch('http://192.168.74.228:2000/upload', {
+            const response = await fetch('http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:2000/upload', {
                 method: 'POST',
                 body: formData
             });
@@ -133,7 +137,7 @@ const Features = () => {
         }
         socketRef.current.emit("delete-room",roomContext.roomState.roomId)
         try {
-            const response = await fetch(`http://192.168.74.228:1000/api/room/${roomContext.roomState.roomId}`, {
+            const response = await fetch(`http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:1000/api/room/${roomContext.roomState.roomId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -164,7 +168,7 @@ const Features = () => {
         // check user is in db or not 
         try {
 
-            const response = await fetch(`http://192.168.74.228:1000/api/user/${participantEmail}`, {
+            const response = await fetch(`http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:1000/api/user/${participantEmail}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -220,7 +224,7 @@ const Features = () => {
         // put reques for updating the room 
         try {
 
-            const response = await fetch(`http://192.168.74.228:1000/api/room/${roomId}`, {
+            const response = await fetch(`http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:1000/api/room/${roomId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -234,7 +238,7 @@ const Features = () => {
                 // now send the code in email 
                 try {
 
-                    const response = await fetch(`http://192.168.74.228:7000/send-room-code`, {
+                    const response = await fetch(`http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:7000/send-room-code`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

@@ -6,7 +6,7 @@ export const getSocket = () => {
  
   return new Promise((resolve, reject) => {
     if (!socket) {
-      socket = io('http://localhost:2000'); 
+      socket = io('http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:2000'); 
 
       console.log('Socket initialized, waiting for connection...');
       socket.on('connect', () => {

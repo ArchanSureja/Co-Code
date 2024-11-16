@@ -5,13 +5,11 @@ import './JoinRoom.css';
 import heroImg from '../assets/hero.png';
 import { useRoom } from '../context/roomContext/roomContext';
 import getRoomFromDB from '../services/room-service'
-import { toast
-
-} from 'react-toastify';
+import { toast} from 'react-toastify';
 const generateRandomRoomId = () => {
     const characters = '-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdefghijklmnopqrstuvwxyz-0123456789-';
     let result = '';
-    const length = 10; // You can change the length of the room ID as needed
+    const length = 10; 
     for (let i = 0; i < length; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length);
         result += characters[randomIndex];
@@ -36,7 +34,7 @@ const JoinRoom = ({ image, heading }) => {
             contents:"",
 
         }
-        const response = await fetch(`http://192.168.74.228:1000/api/room/`, {
+        const response = await fetch(`http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:1000/api/room/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -134,7 +132,7 @@ const JoinRoom = ({ image, heading }) => {
                     }
                     
                 </div>
-           </div >
+           </div>
            </div>
 )
 }

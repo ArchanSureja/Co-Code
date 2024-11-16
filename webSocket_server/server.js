@@ -60,6 +60,7 @@ socket_server.on("connection",(socket)=>{
         {
             socket_server.emit("status-sync",online_map[roomId])
         }
+      
         
     })
     socket.on("join-room",(room,username)=>{

@@ -25,7 +25,7 @@ class RoomMap {
         }
         try { 
             console.log("room details to be saved in db : ", room)
-            const res = await fetch(`http://192.168.74.228:1000/api/Flushroom/${roomId}`,{
+            const res = await fetch(`http://ec2-52-66-235-244.ap-south-1.compute.amazonaws.com:1000/api/Flushroom/${roomId}`,{
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

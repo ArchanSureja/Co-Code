@@ -7,22 +7,22 @@ const runtimes = [
     { "language": "javascript", "version": "18.15.0", "aliases": ["node-javascript", "node-js", "javascript", "js"], "runtime": "node" },
     { "language": "python", "version": "3.10.0", "aliases": ["py", "py3", "python3", "python3.10"] },
 ];
-
+// currently supported runtimes only the 5 , we can add another runtime as static 
 const languages = ["javascript", "python", "java", "c++", "bash"];
 
 const LanguageSelector = ({ onLanguageSelect }) => {
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [output, setOutput] = useState('');
 
-    // Filter top 5 languages from runtimes
-    const top5Languages = runtimes.filter(runtime => languages.includes(runtime.language));
+    // runtimes : contains all runtime , top5Languages : conatain top 5 element of the runtimes 
+    const top5Languages = runtimes.slice(0,5);
 
     const handleLanguageChange = (event) => {
         const selected = event.target.value;
         setSelectedLanguage(selected);
         const languageInfo = top5Languages.find(lang => lang.language === selected);
         onLanguageSelect(languageInfo);
-        console.log(languageInfo);
+        
     };
 
     return (

@@ -9,10 +9,8 @@ import ChatProvider from './context/chatContext.jsx';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <AuthProvider >
-    {/* <ChatProvider > */}
       <React.StrictMode>
         <App />
-        {/* Add toast notifications here */}
         <ToastContainer
           pposition="top-right"
           autoClose={5000}
@@ -24,11 +22,9 @@ root.render(
           draggable
           pauseOnHover
           theme="colored"
-          // transition:Bounce
           bodyClassName="toastBody"
         />
       </React.StrictMode>
-    {/* </ChatProvider> */}
   </AuthProvider>
 );
 
